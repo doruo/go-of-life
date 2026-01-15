@@ -1,32 +1,31 @@
 package gol
 
-import (
-	"log"
-
-	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
-)
-
 type Game struct {
 	title                     string
 	screenWidth, screenHeight int
 	gs                        GameState
 }
 
-func NewGame(width, height int) *Game {
+func NewGame(width, height, lag int) *Game {
 	return &Game{
 		title:        "Game of life",
 		screenWidth:  width,
 		screenHeight: height,
-		gs:           *NewGameState(width * height),
+		gs:           *NewGameState(width * height, lag),
 	}
 }
 
-func (g *Game) Update() error {
+func (g *Game) Update()  {
 	g.gs.Update()
-	return nil
 }
 
+func (g *Game) Run() {
+	for {
+		g.Update()
+	}
+}
+
+/*
 func (g *Game) Draw(screen *ebiten.Image) {
 	ebitenutil.DebugPrint(screen, g.title)
 }
@@ -34,13 +33,4 @@ func (g *Game) Draw(screen *ebiten.Image) {
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
 	return outsideWidth, outsideHeight
 }
-
-func (g *Game) Run() {
-
-	ebiten.SetWindowSize(g.screenWidth, g.screenHeight)
-	ebiten.SetWindowTitle(g.title)
-
-	if err := ebiten.RunGame(g); err != nil {
-		log.Fatal(err)
-	}
-}
+*/
