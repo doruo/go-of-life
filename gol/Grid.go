@@ -1,16 +1,19 @@
 package gol
 
 import (
-	"fmt"
 	"math/rand"
+	"fmt"
 )
 
 type Grid [][]Cell
 
-func NewGrid(len int) *Grid {
-	m := make(Grid, len)
-	for i := range len {
-		m[i] = make([]Cell, len)
+func NewGrid(n  int) *Grid {
+	m := make(Grid, n)
+	for i := range n {
+		m[i] = make([]Cell, n)
+		for j := range m[i] {
+			m[i][j] = *NewCell(i,j)
+		}
 	}
 	return &m
 }
@@ -18,7 +21,7 @@ func NewGrid(len int) *Grid {
 // Creates a randomly generated grid
 func NewSeed(n int) *Grid {
 	m := *NewGrid(n)
-	for range rand.Intn(n * n) {
+	for range (n*10) {
 		m[rand.Intn(n)][rand.Intn(n)].SetAlive(true)
 	}
 	return &m
@@ -26,31 +29,22 @@ func NewSeed(n int) *Grid {
 
 // --------------------------------------------
 
-// Updates all cells, returns all remaining alives
-func (newGrid *Grid) UpdateCells(oldGrid *Grid) [][]int {
-
-	alives := make([][]int, len(*oldGrid))
-	for i := range *oldGrid {
-		for j := range (*oldGrid)[i] {
-			// Update cell and its adjacents
-			newGrid.updateCell(i, j, oldGrid)
-			cell := oldGrid.GetCell(i, j)
-			if cell.IsAlive() {
-				alives = append(alives, []int{i, j})
-			}
-			displayCell(cell)
-		}
-		fmt.Println(" ")
-	}
-	return alives
-}
-
 // Updates a given cell
-func (newGrid *Grid) updateCell(i, j int, oldGrid *Grid) {
+func (newGrid *Grid) UpdateCell(i, j int, oldGrid *Grid) *Cell {
 	oldGrid.updateCellAdjs(i, j)
-	cOld := oldGrid.GetCell(i, j)
-	cOld.UpdateState()
-	newGrid.SetCell(i, j, *cOld)
+	
+	oldCell := oldGrid.GetCell(i, j)
+	oldCell.UpdateState()
+
+	for _, adjacent := range oldCell.Adjacents {
+		oldGrid.updateCellAdjs(adjacent.I, adjacent.J)
+		adjacent := *oldGrid.GetCell(i, j)
+		adjacent.UpdateState()
+		newGrid.SetCell(adjacent.I, adjacent.J, adjacent)
+	} 
+
+	newGrid.SetCell(i, j, *oldCell)
+	return oldCell
 }
 
 // Updates all adjacents of a given cell
@@ -68,6 +62,15 @@ func (oldGrid *Grid) updateCellAdjs(i, j int) {
 
 // --------------------------------------------
 
+func (m Grid) Show(){
+	for i := range m {
+		for j := range m[i]{
+			displayCell(m.GetCell(i,j))
+		}
+		fmt.Println(" ")
+	}
+}
+
 func displayCell(cell *Cell) {
 	fmt.Print(cell.ToString(), " ")
 }
@@ -84,10 +87,10 @@ func (m Grid) isValidPosition(i, j int) bool {
 	return i >= 0 && i < len(m) && j >= 0 && j < len(m[0])
 }
 
-// All possible adjacent cell position
+// All possible adjacent position
 func getAdjacentsPos() [8][2]int {
 	return [8][2]int{
 		{-1, -1}, {-1, 0}, {-1, 1}, // upper level
-		{0, -1}, {0, 1}, // left and right level
-		{1, -1}, {1, 0}, {1, 1}} // bottom level
+		{0, -1}, {0, 1}, 			// left and right level
+		{1, -1}, {1, 0}, {1, 1}} 	// bottom level
 }

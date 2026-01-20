@@ -5,8 +5,9 @@ import (
 )
 
 func main() {
-	width, heigth := 5, 5
-	lag := 1000
-	game := gol.NewGame(width, heigth, lag)
+	screenWidth, screenHeigth := 1920, 1080
+	size, lag := 40, 5000
+
+	game := gol.NewGame(screenWidth, screenHeigth, size, lag)
 	game.Run()
 }

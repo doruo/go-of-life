@@ -12,20 +12,20 @@ func Purple() string     { return "\033[35m" }
 func Cyan() string       { return "\033[36m" }
 
 type GameState struct {
-	previousGrid          Grid    // Previous generation
-	nextGrid              Grid    // New generation
-	alives                [][]int // Alives cells
-	size, generation, lag int     // Generation number, Lag frame/milliseconds
-	debug                 bool    // Set to true to display debug logs
+	PreviousGrid          Grid   		// Previous generation
+	NextGrid              Grid    		// New generation
+	alives                [][]int 		// Alives cells coordinatees
+	Size, Generation, lag int  			// Generation number, Lag frame/milliseconds
+	debug                 bool    		// Set to true to display debug logs
 }
 
-func NewGameState(size, lag int) *GameState {
+func NewGameState(n, lag int) *GameState {
 	return &GameState{
-		previousGrid: *NewSeed(size),
-		nextGrid:     *NewGrid(size),
-		size:         size,
-		alives:       make([][]int, size, size*size),
-		generation:   1,
+		PreviousGrid: *NewSeed(n),
+		NextGrid:     *NewGrid(n),
+		Size:         n,
+		Generation:   0,
+		alives:       [][]int{},
 		lag:          lag,
 		debug:        false,
 	}
@@ -33,52 +33,89 @@ func NewGameState(size, lag int) *GameState {
 
 // --------------------------------------------
 
-func (gs *GameState) Update() {
-	clearDisplay()
-	gs.displayHeader()
-	// Updates and display next grid state with all logical process
-	gs.SetAlives(gs.nextGrid.UpdateCells(gs.GetPreviousGrid()))
-	// Prepare next iteration
-	gs.prepareNextIteration()
+func (gs *GameState) Init(){
+	gs.initAlives()
+	gs.Show()
 }
 
-func (gs *GameState) prepareNextIteration() {
-	gs.transfertPreviousToNextGrid()
-	gs.updateGeneration()
-	// Game speed
-	time.Sleep(time.Duration(gs.GetLag()) * time.Millisecond)
-}
-
-func (gs *GameState) transfertPreviousToNextGrid() {
-	gs.previousGrid = *gs.GetNextGrid()
-	gs.nextGrid = *NewGrid(gs.GetSize())
+func (gs *GameState) initAlives(){
+	alives := [][]int{}
+	for i := range gs.PreviousGrid {
+		for j := range gs.PreviousGrid[i] {
+			cell := gs.PreviousGrid.GetCell(i, j)
+			if (cell.IsAlive()){
+				alives = append(alives, []int{i, j})
+			}
+		}
+	}
+	gs.SetAlives(alives)
 }
 
 // --------------------------------------------
 
-func clearDisplay() {
+func (gs *GameState) Update() {
+	gs.updateGen()
+	gs.prepareNextGen()
+}
+
+// Updates and display next grid state with all logical process
+func (gs *GameState) updateGen(){
+	gs.updateGenNumber()
+	alives :=  [][]int{}	
+	for i := range gs.alives {
+
+		// Update cell and its adjacents
+		cellCord := gs.alives[i]
+		cell := gs.NextGrid.UpdateCell(cellCord[0], cellCord[1], &gs.PreviousGrid)
+
+		if cell.IsAlive() {
+			alives = append(alives, []int{cellCord[0], cellCord[1]})
+		}
+		
+	}
+	gs.SetAlives(alives)
+}
+
+// Prepare next iteration
+func (gs *GameState) prepareNextGen() {
+	gs.transfertPreviousToNextGrid()
+	gs.sleepDelay()
+}
+
+func (gs *GameState) sleepDelay(){
+	// Game speed
+	delay := time.Duration(gs.GetLag()) * time.Millisecond
+	time.Sleep(delay)
+}
+
+func (gs *GameState) transfertPreviousToNextGrid() {
+	gs.PreviousGrid = gs.NextGrid
+	gs.NextGrid = *NewGrid(gs.Size)
+}
+
+// --------------------------------------------
+
+func (gs *GameState) Show() {
+	clearShow()
+	gs.showHeader()
+	gs.PreviousGrid.Show()
+}
+
+func clearShow() {
 	fmt.Print("\033[H\033[2J")
 }
 
-func (gs *GameState) displayHeader() {
+func (gs *GameState) showHeader() {
 	fmt.Println(Purple(), "------------------", ColorReset())
-	fmt.Println(Cyan(), "  Generation:", gs.GetGeneration(), ColorReset())
+	fmt.Println(Cyan(), "  Generation:", gs.Generation, ColorReset())
 	fmt.Println(Cyan(), "  Population:", len(*gs.GetAlives()), ColorReset())
 	fmt.Println(Purple(), "------------------", ColorReset())
 }
 
 // --------------------------------------------
 
-func (gs *GameState) GetPreviousGrid() *Grid {
-	return &gs.previousGrid
-}
-
-func (gs *GameState) GetNextGrid() *Grid {
-	return &gs.nextGrid
-}
-
-func (gs *GameState) GetSize() int {
-	return gs.size
+func (gs *GameState) updateGenNumber() {
+	gs.Generation++
 }
 
 func (gs *GameState) GetAlives() *[][]int {
@@ -95,12 +132,4 @@ func (gs *GameState) GetDebug() bool {
 
 func (gs *GameState) SetAlives(alives [][]int) {
 	gs.alives = alives
-}
-
-func (gs *GameState) GetGeneration() int {
-	return gs.generation
-}
-
-func (gs *GameState) updateGeneration() {
-	gs.generation++
 }
