@@ -1,8 +1,6 @@
 package main
 
-import (
-	"github.com/doruo/gameoflife/gol"
-)
+import "github.com/doruo/gameoflife/gol"
 
 func main() {
 	screenWidth, screenHeigth := 1920, 1080
