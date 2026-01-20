@@ -1,7 +1,7 @@
 package gol
 
 type Cell struct {
-	I, J int
+	I, J      int
 	isAlive   bool
 	Adjacents []Cell
 }
@@ -9,10 +9,10 @@ type Cell struct {
 // Creates a new cell with alive adjacents in memory.
 func NewCell(i, j int) *Cell {
 	return &Cell{
-		I:  		i,
-		J: 			j,
-		isAlive:   	false,
-		Adjacents: 	make([]Cell, 8),
+		I:         i,
+		J:         j,
+		isAlive:   false,
+		Adjacents: make([]Cell, 8), // All cell adjacent to this
 	}
 }
 
@@ -25,23 +25,23 @@ func (c *Cell) UpdateState() {
 
 // --------------------------------------------
 
-// Returns updated cell state 
+// Returns updated cell state
 // based on Conway's rules.
 func (c *Cell) GetUpdatedState() bool {
 	// 1 - Any live cell with fewer than two live neighbours dies, as if by underpopulation.
-	if (c.isAlive && len(c.Adjacents) < 2) {
-		return false 
+	if c.isAlive && len(c.Adjacents) < 2 {
+		return false
 	}
 	// 2 - Any live cell with two or three live neighbours lives on to the next generation.
-	if (c.isAlive && (len(c.Adjacents) == 2 || len(c.Adjacents) == 3)) {
-		return true 
+	if c.isAlive && (len(c.Adjacents) == 2 || len(c.Adjacents) == 3) {
+		return true
 	}
 	// 3 - Any live cell with more than three live neighbours dies, as if by overpopulation.
-	if (c.isAlive && len(c.Adjacents) > 3) {
+	if c.isAlive && len(c.Adjacents) > 3 {
 		return false
 	}
 	// 4 - Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
-	if (!c.isAlive && len(c.Adjacents) == 3) {
+	if !c.isAlive && len(c.Adjacents) == 3 {
 		return true
 	}
 	return false
