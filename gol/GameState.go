@@ -12,11 +12,11 @@ func Purple() string     { return "\033[35m" }
 func Cyan() string       { return "\033[36m" }
 
 type GameState struct {
-	PreviousGrid          Grid   		// Previous generation
-	NextGrid              Grid    		// New generation
-	alives                [][]int 		// Alives cells coordinatees
-	Size, Generation, lag int  			// Generation number, Lag frame/milliseconds
-	debug                 bool    		// Set to true to display debug logs
+	PreviousGrid          Grid    // Previous generation
+	NextGrid              Grid    // New generation
+	alives                [][]int // Alives cells coordinatees
+	Size, Generation, lag int     // Generation number, Lag frame/milliseconds
+	debug                 bool    // Set to true to display debug logs
 }
 
 func NewGameState(n, lag int) *GameState {
@@ -33,17 +33,17 @@ func NewGameState(n, lag int) *GameState {
 
 // --------------------------------------------
 
-func (gs *GameState) Init(){
+func (gs *GameState) Init() {
 	gs.initAlives()
 	gs.Show()
 }
 
-func (gs *GameState) initAlives(){
+func (gs *GameState) initAlives() {
 	alives := [][]int{}
 	for i := range gs.PreviousGrid {
 		for j := range gs.PreviousGrid[i] {
 			cell := gs.PreviousGrid.GetCell(i, j)
-			if (cell.IsAlive()){
+			if cell.IsAlive() {
 				alives = append(alives, []int{i, j})
 			}
 		}
@@ -58,20 +58,22 @@ func (gs *GameState) Update() {
 	gs.prepareNextGen()
 }
 
-// Updates and display next grid state with all logical process
-func (gs *GameState) updateGen(){
+// Updates next grid state with all logical process
+func (gs *GameState) updateGen() {
+
 	gs.updateGenNumber()
-	alives :=  [][]int{}	
-	for i := range gs.alives {
+	alives := [][]int{}
 
-		// Update cell and its adjacents
-		cellCord := gs.alives[i]
-		cell := gs.NextGrid.UpdateCell(cellCord[0], cellCord[1], &gs.PreviousGrid)
+	for i := range gs.PreviousGrid {
+		for j := range (gs.PreviousGrid)[i] {
 
-		if cell.IsAlive() {
-			alives = append(alives, []int{cellCord[0], cellCord[1]})
+			// Update cell and its adjacents
+			cell := gs.NextGrid.UpdateCell(i, j, &gs.PreviousGrid)
+
+			if cell.IsAlive() {
+				alives = append(alives, []int{i, j})
+			}
 		}
-		
 	}
 	gs.SetAlives(alives)
 }
@@ -82,7 +84,7 @@ func (gs *GameState) prepareNextGen() {
 	gs.sleepDelay()
 }
 
-func (gs *GameState) sleepDelay(){
+func (gs *GameState) sleepDelay() {
 	// Game speed
 	delay := time.Duration(gs.GetLag()) * time.Millisecond
 	time.Sleep(delay)
