@@ -21,7 +21,7 @@ func NewGrid(n int) *Grid {
 // Creates a randomly generated grid
 func NewSeed(n int) *Grid {
 	m := *NewGrid(n)
-	for range n * 10 {
+	for range n * 5 {
 		m[rand.Intn(n)][rand.Intn(n)].SetAlive(true)
 	}
 	return &m
