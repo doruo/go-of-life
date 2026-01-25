@@ -1,37 +1,33 @@
 package gol
 
 type Game struct {
-	title                     			string
-	gridSize, screenWidth, screenHeight	int
-	gs                        			GameState
+	size int
+	gs   GameState
 }
 
-func NewGame(screenWidth, screenHeigth, size, lag int) *Game {
+func NewGame(size, lag int) *Game {
 	return &Game{
-		title:         "Game of Life",
-		screenWidth:   screenWidth,
-		screenHeight:  screenHeigth,
-		gridSize: 	   size,
-		gs:            *NewGameState(size, lag),
+		size: size,
+		gs:   *NewGameState(size, lag),
 	}
 }
 
-func (g *Game) Init() {
+func (g *Game) init() {
 	g.gs.Init()
 }
 
-func (g *Game) Update()  {
+func (g *Game) update() {
 	g.gs.Update()
 }
 
-func (g *Game) Show()  {
+func (g *Game) show() {
 	g.gs.Show()
 }
 
 func (g *Game) Run() {
-	g.Init()
+	g.init()
 	for {
-		g.Update()
-		g.Show()
+		g.update()
+		g.show()
 	}
 }
