@@ -4,7 +4,11 @@ Implementation of John Horton Conway 1970's Game of Life, in Go language. With i
 
 It is a cellular automatron, used in reasearch and biology to simulates life in a cellular form.
 
-No external dependencies, nor IA used in code.
+## Needed
+
+- Go >= v1.24.4
+
+No dependency needed, nor IA used in code.
 
 ## How to play
 
