@@ -3,9 +3,7 @@ package main
 import "github.com/doruo/gameoflife/gol"
 
 func main() {
-	screenWidth, screenHeigth := 1920, 1080
-	size, lag := 40, 500
-
-	game := gol.NewGame(screenWidth, screenHeigth, size, lag)
+	size, lag := 45, 800
+	game := gol.NewGame(size, lag)
 	game.Run()
 }
